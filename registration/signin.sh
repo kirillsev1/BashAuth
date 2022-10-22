@@ -1,35 +1,50 @@
 #!/bin/bash
 photo_flag=True
-if ! [[ -f "log.txt" ]]
+if ! [[ -f "datebase.txt" ]]
 then
     echo "Еще никто не регистрировался"
 else
     for ((j=0;j < 3; j++))
     do
         echo "Попытка №$(($j + 1))"
-        echo "Введите логин для авторизации"
-        read name
+        echo "Введите логин для авторизации(У вас 5 секунд)"
+        read -t 5 name
+        echo $HOSTNAME:`date +%d-%m-%y_%H-%M-%S`: "try" $(($j + 1)): "Input:" $name >> log.txt
+        if [[ $name == "" ]]
+        then
+            echo "Слишком медленно"
+            continue
+        fi
         echo "Введите пароль"
-        read -s passw
-        echo $passw | md5sum > timefile.txt
+        read -s -t 5 passw
+        echo $HOSTNAME:`date +%d-%m-%y_%H-%M-%S`: "try" $(($j + 1)): "Input:" $passw >> log.txt
+        if [[ $passw == "" ]]
+        then
+            echo "Слишком медленно"
+            continue
+        fi
+        echo $passw | md5sum | awk '{print $1}' > timefile.txt
+        echo $HOSTNAME:`date +%d-%m-%y_%H-%M-%S`: "try" $(($j + 1)): "md5sum" >> log.txt
         read passw < timefile.txt
         i=1
         flag=True
         indname=0
-            while read line
-            do
-                if [[ $(($i % 2)) == 1 ]]
+        echo $HOSTNAME:`date +%d-%m-%y_%H-%M-%S`: "try" $(($j + 1)): "check_name" >> log.txt
+        while read line
+        do
+            if [[ $(($i % 2)) == 1 ]]
+            then
+                if [[ $name == $line ]]
                 then
-                    if [[ $name == $line ]]
-                    then
-                        indname=$i
-                        flag=False
-                    fi
+                    indname=$i
+                    flag=False
                 fi
-                i=$(($i + 1))
-            done < log.txt
+            fi
+            i=$(($i + 1))
+        done < datebase.txt
         
         ansflag=False
+        echo $HOSTNAME:`date +%d-%m-%y_%H-%M-%S`: "try" $(($j + 1)): "check_password" >> log.txt
         if [[ $flag == False ]]
         then
             i=1
@@ -46,7 +61,7 @@ else
                     fi
                 fi
                 i=$(($i + 1))
-            done < log.txt
+            done < datebase.txt
             if [[ $ansflag == True ]]
             then
                 echo "$name, добро пажаловать в систему"
@@ -66,10 +81,7 @@ else
         then
             mkdir photo
         fi
-        if [[ ! -f "which fswebcam"]]
-        then
-            sudo apt install fswebcam
-        fi
+        echo $HOSTNAME:`date +%d-%m-%y_%H-%M-%S`: "try" $(($j + 1)): "take_photo" >> log.txt
         fswebcam -r 640x480 --jpeg 85 -D 1 ./photo/`date +%d-%m-%y_%H-%M-%S`_$HOSTNAME.jpg
     fi
 fi

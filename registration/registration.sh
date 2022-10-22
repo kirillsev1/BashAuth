@@ -1,5 +1,6 @@
 #!/bin/bash
 infint=True
+echo $HOSTNAME:`date +%d-%m-%y_%H-%M-%S`: "try" $(($j + 1)): "rules" >> log.txt
 while read line
 do
     echo $line
@@ -9,6 +10,7 @@ while [[ $infint == True ]]
 do 
     echo "Введите логин для регистрации"
     read name
+    echo $HOSTNAME:`date +%d-%m-%y_%H-%M-%S`: "try" $(($j + 1)): "Input" $name >> log.txt
     if [[ $name == *" "* ]]
     then
         echo "Запись содержит пробелы"
@@ -16,7 +18,8 @@ do
     fi
     i=1
     flag=True
-    if [[ -f "log.txt" ]]
+    echo $HOSTNAME:`date +%d-%m-%y_%H-%M-%S`: "try" $(($j + 1)): "check_name" >> log.txt
+    if [[ -f "datebase.txt" ]]
     then
         while read line
         do 
@@ -28,7 +31,7 @@ do
                 fi
             fi
             i=$(($i + 1))
-        done < log.txt
+        done < datebase.txt
     fi
     if [[ $flag == False ]]
     then
@@ -36,6 +39,7 @@ do
     else
         echo "Придумайте пароль"
         read -s passw
+        echo $HOSTNAME:`date +%d-%m-%y_%H-%M-%S`: "try" $(($j + 1)): "Input" $passw >> log.txt
         if [[ $passw == *" "* ]]
         then
             echo "Запись содержит пробелы"
@@ -45,9 +49,11 @@ do
         then
             echo "Пароль не может быть пустым" 
         else
+
+            echo $HOSTNAME:`date +%d-%m-%y_%H-%M-%S`: "try" $(($j + 1)): "output" >> log.txt
             echo "Вы зарегистрированы"
-            echo "$name" >> log.txt
-            echo $passw | md5sum >> log.txt
+            echo "$name" >> datebase.txt
+            echo $passw | md5sum | awk '{print $1}' >> datebase.txt
             infint=False
         fi
     fi
