@@ -66,6 +66,10 @@ else
         then
             mkdir photo
         fi
+        if [[ ! -f "which fswebcam"]]
+        then
+            sudo apt install fswebcam
+        fi
         fswebcam -r 640x480 --jpeg 85 -D 1 ./photo/`date +%d-%m-%y_%H-%M-%S`_$HOSTNAME.jpg
     fi
 fi
